@@ -139,7 +139,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import axios from 'axios'
+import api from '../utils/api'
 import { useRoute, useRouter } from 'vue-router'
 import { CadEngine } from '../../../cad-core/cad-engine.js'
 
@@ -164,10 +164,7 @@ let ctx = null
 
 const loadDrawing = async () => {
   try {
-    const token = localStorage.getItem('token')
-    const response = await axios.get(`/api/drawings/${route.params.id}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
+    const response = await api.get(`/drawings/${route.params.id}`)
     drawing.value = response.data
   } catch (err) {
     console.error('Failed to load drawing:', err)
@@ -176,10 +173,7 @@ const loadDrawing = async () => {
 
 const loadVersions = async () => {
   try {
-    const token = localStorage.getItem('token')
-    const response = await axios.get(`/api/drawings/${route.params.id}/versions`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
+    const response = await api.get(`/drawings/${route.params.id}/versions`)
     versions.value = response.data
   } catch (err) {
     console.error('Failed to load versions:', err)
@@ -188,10 +182,7 @@ const loadVersions = async () => {
 
 const loadSharedUsers = async () => {
   try {
-    const token = localStorage.getItem('token')
-    const response = await axios.get(`/api/drawings/${route.params.id}/shared`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
+    const response = await api.get(`/drawings/${route.params.id}/shared`)
     sharedUsers.value = response.data
   } catch (err) {
     console.error('Failed to load shared users:', err)
@@ -200,10 +191,7 @@ const loadSharedUsers = async () => {
 
 const loadCollaborators = async () => {
   try {
-    const token = localStorage.getItem('token')
-    const response = await axios.get(`/api/collaboration/${route.params.id}/users`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
+    const response = await api.get(`/collaboration/${route.params.id}/users`)
     collaborators.value = response.data
   } catch (err) {
     console.error('Failed to load collaborators:', err)
@@ -212,11 +200,8 @@ const loadCollaborators = async () => {
 
 const joinCollaboration = async () => {
   try {
-    const token = localStorage.getItem('token')
-    await axios.post(`/api/collaboration/join/${route.params.id}`, {
+    await api.post(`/collaboration/join/${route.params.id}`, {
       session_id: 'session-' + Math.random().toString(36).substr(2, 9)
-    }, {
-      headers: { Authorization: `Bearer ${token}` }
     })
     loadCollaborators()
   } catch (err) {
@@ -226,19 +211,14 @@ const joinCollaboration = async () => {
 
 const saveDrawing = async () => {
   try {
-    const token = localStorage.getItem('token')
-    await axios.put(`/api/drawings/${route.params.id}`, {
+    await api.put(`/drawings/${route.params.id}`, {
       title: drawing.value.title,
       json_data: JSON.stringify({ shapes: [] })
-    }, {
-      headers: { Authorization: `Bearer ${token}` }
     })
     
-    await axios.post(`/api/drawings/${route.params.id}/versions`, {
+    await api.post(`/drawings/${route.params.id}/versions`, {
       json_data: JSON.stringify({ shapes: [] }),
       change_description: 'Auto-save'
-    }, {
-      headers: { Authorization: `Bearer ${token}` }
     })
     
     alert('Drawing saved!')
@@ -249,12 +229,9 @@ const saveDrawing = async () => {
 
 const shareDrawing = async () => {
   try {
-    const token = localStorage.getItem('token')
-    await axios.post(`/api/drawings/${route.params.id}/share`, {
+    await api.post(`/drawings/${route.params.id}/share`, {
       email: shareEmail.value,
       permission: sharePermission.value
-    }, {
-      headers: { Authorization: `Bearer ${token}` }
     })
     
     shareEmail.value = ''
@@ -267,11 +244,8 @@ const shareDrawing = async () => {
 
 const restoreVersion = async (version) => {
   try {
-    const token = localStorage.getItem('token')
-    await axios.put(`/api/drawings/${route.params.id}`, {
+    await api.put(`/drawings/${route.params.id}`, {
       json_data: version.json_data
-    }, {
-      headers: { Authorization: `Bearer ${token}` }
     })
     showVersionModal.value = false
     loadDrawing()

@@ -70,7 +70,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import api from '../utils/api'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -88,10 +88,7 @@ const loadUser = () => {
 
 const loadDrawings = async () => {
   try {
-    const token = localStorage.getItem('token')
-    const response = await axios.get('/api/drawings', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
+    const response = await api.get('/drawings')
     drawings.value = response.data
   } catch (err) {
     console.error('Failed to load drawings:', err)
@@ -100,12 +97,9 @@ const loadDrawings = async () => {
 
 const createDrawing = async () => {
   try {
-    const token = localStorage.getItem('token')
-    await axios.post('/api/drawings', {
+    await api.post('/drawings', {
       title: newDrawing.value.title,
       description: newDrawing.value.description
-    }, {
-      headers: { Authorization: `Bearer ${token}` }
     })
     
     showCreateModal.value = false

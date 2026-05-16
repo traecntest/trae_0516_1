@@ -35,11 +35,23 @@ class JWTManager {
     }
 
     public function extractToken($headers) {
+        $authHeader = null;
+        
         if (isset($headers['Authorization'])) {
             $authHeader = is_array($headers['Authorization']) ? $headers['Authorization'][0] : $headers['Authorization'];
-            if (preg_match('/Bearer\s+(\S+)/', $authHeader, $matches)) {
-                return $matches[1];
-            }
+        } elseif (isset($headers['authorization'])) {
+            $authHeader = is_array($headers['authorization']) ? $headers['authorization'][0] : $headers['authorization'];
+        }
+        
+        if (!$authHeader && isset($_SERVER['HTTP_AUTHORIZATION'])) {
+            $authHeader = $_SERVER['HTTP_AUTHORIZATION'];
+        }
+        if (!$authHeader && isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
+            $authHeader = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+        }
+        
+        if ($authHeader && preg_match('/Bearer\s+(\S+)/i', $authHeader, $matches)) {
+            return $matches[1];
         }
         return null;
     }
