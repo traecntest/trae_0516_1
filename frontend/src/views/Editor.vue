@@ -62,17 +62,155 @@
             <label>Type</label>
             <input :value="selectedObject.type" disabled>
           </div>
-          <div class="property">
-            <label>Position</label>
-            <input v-model="selectedObject.position" @change="updatePosition">
+          
+          <div class="property-section">
+            <h4>Position (x, y, z)</h4>
+            <div class="coord-inputs">
+              <div class="coord-input">
+                <span class="coord-label x">X</span>
+                <input type="number" v-model.number="selectedObject.position[0]" @change="drawScene" step="1">
+              </div>
+              <div class="coord-input">
+                <span class="coord-label y">Y</span>
+                <input type="number" v-model.number="selectedObject.position[1]" @change="drawScene" step="1">
+              </div>
+              <div class="coord-input">
+                <span class="coord-label z">Z</span>
+                <input type="number" v-model.number="selectedObject.position[2]" @change="drawScene" step="1">
+              </div>
+            </div>
+            <p class="hint">Units in millimeters. Y-axis is up.</p>
           </div>
-          <div class="property">
-            <label>Scale</label>
-            <input v-model="selectedObject.scale" @change="updateScale">
+          
+          <div class="property-section">
+            <h4>Scale (x, y, z)</h4>
+            <div class="coord-inputs">
+              <div class="coord-input">
+                <span class="coord-label x">X</span>
+                <input type="number" v-model.number="selectedObject.scale[0]" @change="drawScene" step="0.1" min="0.1">
+              </div>
+              <div class="coord-input">
+                <span class="coord-label y">Y</span>
+                <input type="number" v-model.number="selectedObject.scale[1]" @change="drawScene" step="0.1" min="0.1">
+              </div>
+              <div class="coord-input">
+                <span class="coord-label z">Z</span>
+                <input type="number" v-model.number="selectedObject.scale[2]" @change="drawScene" step="0.1" min="0.1">
+              </div>
+            </div>
+            <p class="hint">1.0 = original size. Use negative values to mirror.</p>
           </div>
+          
+          <div class="property-section">
+            <h4>Rotation (radians)</h4>
+            <div class="coord-inputs">
+              <div class="coord-input">
+                <span class="coord-label x">X</span>
+                <input type="number" v-model.number="selectedObject.rotation[0]" @change="drawScene" step="0.1">
+              </div>
+              <div class="coord-input">
+                <span class="coord-label y">Y</span>
+                <input type="number" v-model.number="selectedObject.rotation[1]" @change="drawScene" step="0.1">
+              </div>
+              <div class="coord-input">
+                <span class="coord-label z">Z</span>
+                <input type="number" v-model.number="selectedObject.rotation[2]" @change="drawScene" step="0.1">
+              </div>
+            </div>
+            <p class="hint">π = 3.14159 radians = 180°. π/2 = 1.5708 = 90°</p>
+          </div>
+          
+          <div class="property-section">
+            <h4>Color</h4>
+            <input type="color" v-model="selectedObject.color" @change="drawScene" class="color-input">
+          </div>
+          
+          <div class="property-section" v-if="selectedObject.type === 'box'">
+            <h4>Box Dimensions</h4>
+            <div class="coord-inputs">
+              <div class="coord-input">
+                <span class="coord-label">W</span>
+                <input type="number" v-model.number="selectedObject.params.size[0]" @change="drawScene" step="1" min="1">
+              </div>
+              <div class="coord-input">
+                <span class="coord-label">H</span>
+                <input type="number" v-model.number="selectedObject.params.size[1]" @change="drawScene" step="1" min="1">
+              </div>
+              <div class="coord-input">
+                <span class="coord-label">D</span>
+                <input type="number" v-model.number="selectedObject.params.size[2]" @change="drawScene" step="1" min="1">
+              </div>
+            </div>
+            <p class="hint">Width × Height × Depth in millimeters</p>
+          </div>
+          
+          <div class="property-section" v-if="selectedObject.type === 'sphere'">
+            <h4>Sphere Radius</h4>
+            <input type="number" v-model.number="selectedObject.params.radius" @change="drawScene" step="1" min="1" class="full-width">
+            <p class="hint">Radius in millimeters</p>
+          </div>
+          
+          <div class="property-section" v-if="selectedObject.type === 'cylinder'">
+            <h4>Cylinder Properties</h4>
+            <div class="coord-inputs">
+              <div class="coord-input">
+                <span class="coord-label">R</span>
+                <input type="number" v-model.number="selectedObject.params.radius" @change="drawScene" step="1" min="1">
+              </div>
+              <div class="coord-input">
+                <span class="coord-label">H</span>
+                <input type="number" v-model.number="selectedObject.params.height" @change="drawScene" step="1" min="1">
+              </div>
+            </div>
+            <p class="hint">Radius × Height in millimeters</p>
+          </div>
+          
+          <div class="property-section" v-if="selectedObject.type === 'torus'">
+            <h4>Torus Properties</h4>
+            <div class="coord-inputs">
+              <div class="coord-input">
+                <span class="coord-label">R1</span>
+                <input type="number" v-model.number="selectedObject.params.innerRadius" @change="drawScene" step="1" min="1">
+              </div>
+              <div class="coord-input">
+                <span class="coord-label">R2</span>
+                <input type="number" v-model.number="selectedObject.params.outerRadius" @change="drawScene" step="1" min="1">
+              </div>
+            </div>
+            <p class="hint">R1 = ring radius, R2 = tube radius</p>
+          </div>
+          
+          <div class="property-section" v-if="selectedObject.type === 'text'">
+            <h4>Text Properties</h4>
+            <input type="text" v-model="selectedObject.params.text" @change="drawScene" class="full-width" placeholder="Enter text">
+            <div class="coord-inputs" style="margin-top: 8px;">
+              <div class="coord-input">
+                <span class="coord-label">S</span>
+                <input type="number" v-model.number="selectedObject.params.size" @change="drawScene" step="1" min="1">
+              </div>
+              <div class="coord-input">
+                <span class="coord-label">H</span>
+                <input type="number" v-model.number="selectedObject.params.height" @change="drawScene" step="1" min="1">
+              </div>
+            </div>
+            <p class="hint">S = font size, H = extrusion height</p>
+          </div>
+          
+          <button class="btn btn-danger" style="width: 100%; margin-top: 16px;" @click="deleteSelected">
+            🗑️ Delete Object
+          </button>
         </div>
         <div v-else class="no-selection">
           <p>Select an object to edit properties</p>
+          <div class="tips">
+            <h4>Tips:</h4>
+            <ul>
+              <li>Click shapes to select</li>
+              <li>Drag to move selected shape</li>
+              <li>Right-drag to rotate view</li>
+              <li>Scroll to zoom</li>
+            </ul>
+          </div>
         </div>
         
         <h3>Export</h3>
@@ -414,6 +552,17 @@ const updatePosition = () => {
 
 const updateScale = () => {
   drawScene()
+}
+
+const deleteSelected = () => {
+  if (selectedObject.value) {
+    const index = shapes.value.findIndex(s => s.id === selectedObject.value.id)
+    if (index !== -1) {
+      shapes.value.splice(index, 1)
+    }
+    selectedObject.value = null
+    drawScene()
+  }
 }
 
 const initCadEngine = () => {
@@ -950,5 +1099,128 @@ onUnmounted(() => {
 .no-shared {
   color: rgba(255, 255, 255, 0.5);
   padding: 16px;
+}
+
+.property-section {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.property-section:last-child {
+  border-bottom: none;
+}
+
+.property-section h4 {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+
+.coord-inputs {
+  display: flex;
+  gap: 6px;
+}
+
+.coord-input {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.coord-label {
+  width: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.coord-label.x { color: #ff6b6b; }
+.coord-label.y { color: #51cf66; }
+.coord-label.z { color: #339af0; }
+
+.coord-input input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 6px 8px;
+  color: white;
+  font-size: 12px;
+  width: 100%;
+}
+
+.coord-input input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.hint {
+  margin: 6px 0 0 0;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+  line-height: 1.4;
+}
+
+.color-input {
+  width: 100%;
+  height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.full-width {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: white;
+  font-size: 13px;
+}
+
+.full-width:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #ff6b6b, #c92a2a) !important;
+  border: none !important;
+}
+
+.btn-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(201, 42, 42, 0.4);
+}
+
+.tips {
+  margin-top: 20px;
+  padding: 12px;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.tips h4 {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  color: #667eea;
+}
+
+.tips ul {
+  margin: 0;
+  padding-left: 16px;
+}
+
+.tips li {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 4px;
 }
 </style>
