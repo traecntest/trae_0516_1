@@ -36,7 +36,7 @@ class JWTManager {
 
     public function extractToken($headers) {
         if (isset($headers['Authorization'])) {
-            $authHeader = $headers['Authorization'];
+            $authHeader = is_array($headers['Authorization']) ? $headers['Authorization'][0] : $headers['Authorization'];
             if (preg_match('/Bearer\s+(\S+)/', $authHeader, $matches)) {
                 return $matches[1];
             }
